@@ -11,7 +11,7 @@ createRoot(document.getElementById('root')).render(
     <ThemeProvider>
       <StrictMode>
         <App />
-      </StrictMode>,
+      </StrictMode>
     </ThemeProvider>
 
   </BrowserRouter>

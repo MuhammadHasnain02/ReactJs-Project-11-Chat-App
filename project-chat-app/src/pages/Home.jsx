@@ -12,9 +12,9 @@ function Home() {
     const [loading , setLoading] = useState(true)
 
     useEffect(() => {
-        setTimeout(() => {
-            setLoading(false)
-        } , 300)
+      setTimeout(() => {
+        setLoading(false)
+      } , 300)
     } , [])
 
     return (
@@ -51,7 +51,7 @@ function Home() {
                         ${darkMode ? "text-indigo-400" : "text-indigo-600"}`}>
 
                         <span className={`text-sm px-2.5 py-1.5 rounded-full ${darkMode ? 'bg-indigo-900 text-indigo-300' : 'bg-gray-200 text-indigo-600'}`}>
-                          <i class="fa-solid fa-tag text-md"></i> V2.0
+                          <i className="fa-solid fa-tag text-md"></i> V2.0
                         </span> Powered by Supabase Realtime
                         
                       </p>
@@ -70,7 +70,7 @@ function Home() {
                       <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4 pt-4">
 
                         <button 
-                          onClick={() => navigation('/signup')} 
+                          onClick={() => navigation('/login')} 
                           className="flex-1 py-5 px-8 rounded-full bg-indigo-600 
                             text-white font-bold text-lg shadow-lg shadow-indigo-500/50 
                             hover:bg-indigo-700 transition duration-300 
@@ -80,7 +80,7 @@ function Home() {
                         </button>
 
                         <button 
-                          onClick={() => navigation('/login')} 
+                          onClick={() => navigation('/signup')} 
                           className={`flex-1 py-5 px-8 rounded-full border-2 font-bold text-lg transition duration-300 cursor-pointer
                             ${darkMode 
                             ? "border-indigo-400 bg-gray-800 text-indigo-300 hover:bg-gray-700" 
@@ -100,7 +100,7 @@ function Home() {
                           ${darkMode ? "bg-gray-800 shadow-black/30" : "bg-white"}`}>
                           
                           <img 
-                              src='../../public/images/logo.png'
+                              src='../images/logo.png'
                               alt="Application Logo"
                               className={`w-32 h-32 md:w-48 md:h-48 object-contain rounded-full p-3.5 
                                   ${darkMode ? "bg-gray-700" : "bg-gray-200"}`}

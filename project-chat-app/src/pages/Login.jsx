@@ -1,20 +1,56 @@
-import { useContext } from "react";
+import { useState , useEffect , useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { ThemeContext } from "../context/ThemeContext";
+
 import { RotatingLines } from "react-loader-spinner";
-import { useState } from "react";
-import { useEffect } from "react";
+import { ThemeContext } from "../context/ThemeContext";
+import { signIn } from "../services/authService";
 
 const Login = () => {
   const navigate = useNavigate();
   const { darkMode } = useContext(ThemeContext);
-  const [loading , setLoading] = useState(true)
+  const [ loading , setLoading ] = useState(true)
+
+  // Input States
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  // ========= loading handling =========
 
   useEffect(() => {
+    setLoading(true)
+
     setTimeout(() => {
-        setLoading(false)
+      setLoading(false)
     } , 300)
   } , [])
+
+  // ========= Handle Signup =========
+  
+  const handleLogin = async (e) => {
+    e.preventDefault();
+
+    if (!email || !password) {
+      alert("Please fill required fields")
+      return
+    }
+
+    setLoading(true);
+
+    try {
+      const data = await signIn(email , password)
+      console.log("Login success:", data);
+      alert("Login successful!");
+      navigate("/dashboard");
+    }
+    catch (error) {
+      console.log("Signup Error:", error);
+      alert('something went wrong') 
+    }
+    finally {
+      setLoading(false);
+    }
+
+  };
 
   return (
     <>
@@ -36,7 +72,7 @@ const Login = () => {
 
       ) : (
 
-      <div className={`min-h-screen flex items-center justify-center p-6 transition-colors duration-500 font-[Montserrat] ${darkMode ? "bg-[#050816]" : "bg-gray-50"}`}>
+      <div className={`flex grow items-center justify-center transition-colors duration-500 font-[Montserrat] ${darkMode ? "bg-[#050816]" : "bg-gray-50"}`}>
         
         {/* Background Blobs for Dark Mode */}
         {darkMode && (
@@ -59,7 +95,7 @@ const Login = () => {
           </div>
 
           {/* Inputs */}
-          <form className="space-y-6">
+          <form onSubmit={handleLogin} className="space-y-6">
 
             {/* Email Field */}
             <div className="space-y-2">
@@ -68,8 +104,7 @@ const Login = () => {
                 <span className="absolute inset-y-0 left-0 pl-4 flex items-center text-gray-400">
                   <i className="fas fa-envelope"></i>
                 </span>
-                <input 
-                  type="email" 
+                <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)}
                   className={`text-[15px] w-full pl-11 pr-4 py-4 rounded-xl outline-none border transition-all ${darkMode ? "bg-white/5 border-white/10 text-white focus:border-indigo-500" : "bg-gray-50 border-gray-200 focus:border-indigo-600"}`}
                   placeholder="name@example.com"
                 />
@@ -78,30 +113,48 @@ const Login = () => {
 
             {/* Password Field */}
             <div className="space-y-2">
+
               <div className="flex justify-between items-center px-1">
                 <label className={`text-xs font-bold uppercase tracking-normal ${darkMode ? "text-gray-400" : "text-gray-600"}`}>Password</label>
                 <a href="#" className="text-xs text-indigo-500 font-bold hover:underline">Forgot?</a>
               </div>
               <div className="relative">
+
                 <span className="absolute inset-y-0 left-0 pl-4 flex items-center text-gray-400">
                   <i className="fas fa-shield-alt"></i>
                 </span>
-                <input 
-                  type="password" 
+                <input type="password" required value={password} onChange={(e) => setPassword(e.target.value)}
                   className={`w-full pl-11 pr-4 py-4 rounded-xl outline-none border transition-all ${darkMode ? "bg-white/5 border-white/10 text-white focus:border-indigo-500" : "bg-gray-50 border-gray-200 focus:border-indigo-600"}`}
                   placeholder="••••••••"
                 />
+
               </div>
+
             </div>
 
             {/* Button Field */}
-            <button className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-black rounded-xl shadow-lg shadow-indigo-500/30 transition-all active:scale-95 uppercase tracking-widest text-sm">
-              Login to Account
+            <button type="submit" disabled={loading} 
+              className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-black rounded-xl shadow-lg shadow-indigo-500/30 transition-all active:scale-95 uppercase tracking-widest text-sm">
+              
+              {loading ? "Logging in..." : "Login to Account"}
             </button>
 
           </form>
 
-            {/* bottom line */}
+          {/* Divider */}
+          <div className="flex items-center my-6">
+            <div className={`grow border-t ${darkMode ? "border-white/10" : "border-gray-200"}`}></div>
+            <span className={`px-3 text-xs font-bold uppercase tracking-widest ${darkMode ? "text-gray-500" : "text-gray-400"}`}>OR</span>
+            <div className={`grow border-t ${darkMode ? "border-white/10" : "border-gray-200"}`}></div>
+          </div>
+
+          {/* Google Login Button */}
+          <button className={`w-full py-4 flex items-center justify-center gap-3 rounded-xl border font-bold text-sm transition-all active:scale-95 cursor-pointer ${darkMode ? "bg-white/5 border-white/10 text-white hover:bg-white/10" : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50 shadow-sm"}`}>
+            <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google" className="w-5 h-5" />
+            Continue with Google
+          </button>
+
+          {/* bottom part */}
           <p className={`text-center mt-8 text-sm font-medium ${darkMode ? "text-gray-400" : "text-gray-500"}`}>
             Don't have an account? <span onClick={() => navigate('/signup')} className="text-indigo-500 font-bold cursor-pointer hover:underline ml-1">Sign up free</span>
           </p>

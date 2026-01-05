@@ -1,9 +1,9 @@
 import { useState , useEffect , useContext } from "react";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 
 import { RotatingLines } from "react-loader-spinner";
 import { ThemeContext } from "../context/ThemeContext";
-import { signIn } from "../services/authService";
+import { signIn, signInWithGoogle } from "../services/authService";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -30,7 +30,6 @@ const Login = () => {
     e.preventDefault();
 
     if (!email || !password) {
-      alert("Please fill required fields")
       return
     }
 
@@ -38,19 +37,37 @@ const Login = () => {
 
     try {
       const data = await signIn(email , password)
-      console.log("Login success:", data);
-      alert("Login successful!");
+      // console.log("Login success:", data);
       navigate("/dashboard");
     }
     catch (error) {
       console.log("Signup Error:", error);
-      alert('something went wrong') 
+      // alert('something went wrong')
     }
     finally {
       setLoading(false);
     }
 
   };
+  
+  // ========= Handle Login With Google =========
+
+  const handleLoginWithGoogle = async () => {
+    try {
+
+      setLoading(true);
+      const { data , error } = await signInWithGoogle()
+
+      if (error) {
+        console.error("Login With Google error:", error.message);
+        setLoading(false);
+      }
+
+    } catch (err) {
+      console.error("Login With Google Unexpected error:", err);
+      setLoading(false);
+    }
+  }
 
   return (
     <>
@@ -149,9 +166,12 @@ const Login = () => {
           </div>
 
           {/* Google Login Button */}
-          <button className={`w-full py-4 flex items-center justify-center gap-3 rounded-xl border font-bold text-sm transition-all active:scale-95 cursor-pointer ${darkMode ? "bg-white/5 border-white/10 text-white hover:bg-white/10" : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50 shadow-sm"}`}>
+          <button onClick={handleLoginWithGoogle}
+          className={`w-full py-4 flex items-center justify-center gap-3 rounded-xl border font-bold text-sm transition-all active:scale-95 cursor-pointer ${darkMode ? "bg-white/5 border-white/10 text-white hover:bg-white/10" : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50 shadow-sm"}`}>
+            
             <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google" className="w-5 h-5" />
-            Continue with Google
+            {loading ? "Logging in..." : "Continue with Google"}
+
           </button>
 
           {/* bottom part */}

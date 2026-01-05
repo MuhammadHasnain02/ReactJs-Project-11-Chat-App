@@ -11,9 +11,9 @@ const Signup = () => {
   const [ loading , setLoading ] = useState(false)
 
   // Input States
-  const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [ fullName, setFullName ] = useState("");
+  const [ email, setEmail ] = useState("");
+  const [ password, setPassword ] = useState("");
 
   // ========= loading handling =========
 
@@ -39,12 +39,12 @@ const Signup = () => {
 
     try {
       const data = await signUp(email , password)
-      console.log("Signup success:", data);
+      // console.log("Signup success:", data);
       alert("Please Check Your Email and Verify It's You!");
     }
     catch (error) {
       console.log("Signup Error:", error);
-      alert('something went wrong') 
+      // alert('something went wrong') 
     }
     finally {
       setLoading(false);

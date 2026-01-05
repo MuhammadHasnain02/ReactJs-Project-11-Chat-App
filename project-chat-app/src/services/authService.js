@@ -20,14 +20,14 @@ export async function signIn(email, password) {
 
 // ------------<<< Sign In With Google >>>----------------
 
-// const signInWithGoogle = async () => {
-//   const { data, error } = await supabase.auth.signInWithOAuth({
-//     provider: 'google',
-//   });
-//   if (error) {
-//     console.log(error);
-//   }
-// }
+export const signInWithGoogle = async () => {
+  return await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: `${window.location.origin}/dashboard`,
+    },
+  });
+}
 
 // ------------<<< LOGOUT >>>----------------
 

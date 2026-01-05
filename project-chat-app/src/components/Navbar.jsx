@@ -27,7 +27,7 @@ const Navbar = () => {
                         ${darkMode ? "bg-gray-400" : "bg-indigo-100"}`}>
                         
                         <img
-                            src={`${darkMode ? 'https://cdn-icons-png.flaticon.com/512/8280/8280428.png' : 'https://cdn-icons-png.flaticon.com/512/8280/8280428.png'}`}
+                            src="../../public/images/navbar-logo.png"
                             alt="Logo"
                             className="w-12 h-12 object-contain"
                         />

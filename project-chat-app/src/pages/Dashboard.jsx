@@ -7,7 +7,7 @@ import { supabase } from "../supabase/config";
 import { useEffect } from "react";
 
 const Dashboard = () => {
-  const { darkMode } = useContext(ThemeContext);
+  const { darkMode , setDarkMode } = useContext(ThemeContext);
   const [message, setMessage] = useState("");
   const [allMessages, setAllMessages] = useState([]);
   const navigate = useNavigate();
@@ -77,7 +77,7 @@ const Dashboard = () => {
     <div className={`flex h-screen overflow-hidden font-[Montserrat] transition-colors duration-500 ${darkMode ? "bg-[#050816] text-white" : "bg-gray-50 text-gray-900"}`}>
       
       {/* --- SIDEBAR (Navigation Icons) --- */}
-      <aside className={`w-20 hidden md:flex flex-col items-center justify-between py-8 border-r transition-colors ${darkMode ? "bg-white/5 border-white/5" : "bg-white border-gray-200"}`}>
+      <aside className={`w-20 hidden md:flex flex-col items-center justify-between py-8 border-r transition-colors duration-300 ${darkMode ? "bg-white/5 border-white/5" : "bg-white border-gray-200"}`}>
 
         <nav className="flex flex-col items-center gap-8 text-gray-400">
 
@@ -131,7 +131,7 @@ const Dashboard = () => {
       </aside>
 
       {/* --- MAIN CHAT ROOM --- */}
-      <main className={`grow flex flex-col transition-colors ${darkMode ? "bg-[#050816]" : "bg-white"}`}>
+      <main className={`grow flex flex-col transition-colors duration-300 ${darkMode ? "bg-[#050816]" : "bg-white"}`}>
         
         {/* Header - Global Room Info */}
         <header className={`p-6 flex justify-between items-center border-b ${darkMode ? "border-white/5 bg-white/2" : "border-gray-200 bg-white"}`}>
@@ -151,19 +151,27 @@ const Dashboard = () => {
           
           <div className="flex gap-4">
 
+            {/* Notification Icon */}
             <button className={`p-3 rounded-xl transition cursor-pointer ${darkMode ? "bg-white/5 hover:bg-white/10" : "bg-gray-100 hover:bg-gray-200"}`}>
               <i className="fas fa-bell"></i>
             </button>
+            {/* Search Icon */}
             <button className={`p-3 rounded-xl transition cursor-pointer ${darkMode ? "bg-white/5 hover:bg-white/10" : "bg-gray-100 hover:bg-gray-200"}`}>
               <i className="fas fa-search"></i>
+            </button>
+            {/* Dark & Light Theme Icon */}
+            <button onClick={() => setDarkMode(!darkMode)}
+              className={`p-3 rounded-xl transition cursor-pointer text-lg ${darkMode ? "bg-white/5 hover:bg-white/10" : "bg-gray-100 hover:bg-gray-200"}`}>
+              <i className={`fa-regular fa-${darkMode ? "sun" : "moon"}`}></i>
+            </button>
+            {/* SignOut Icon */}
+            <button onClick={handleSignOut} title="Sign out" 
+              className={`p-3 rounded-xl transition cursor-pointer ${darkMode ? "bg-red-950" : "bg-red-100"}`}>
+              <i className="fas fa-right-from-bracket text-lg text-red-500 duration-500 hover:-rotate-90"></i>
             </button>
             {/* <button className={`p-3 rounded-xl transition cursor-pointer ${darkMode ? "bg-white/5 hover:bg-white/10" : "bg-gray-100 hover:bg-gray-200"}`}>
               <i className="fa-solid fa-ellipsis-vertical"></i>
             </button> */}
-            <button onClick={handleSignOut} title="Sign out" 
-              className={`p-3 rounded-xl transition cursor-pointer ${darkMode ? "bg-white/5 hover:bg-white/10" : "bg-red-100"}`}>
-              <i className="fas fa-right-from-bracket text-lg text-red-500 duration-500 hover:-rotate-90"></i>
-            </button>
 
           </div>
 

@@ -73,6 +73,30 @@ const Dashboard = () => {
     return () => supabase.removeChannel(channel)
   } , [])
 
+  // ========== URL Handling ==========
+
+  useEffect(() => {
+    if (window.location.hash) {
+
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session) {
+          window.history.replaceState(null, "", "/dashboard");
+        }
+      });
+
+    }
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+
+      if (event === "SIGNED_OUT" || !session) {
+        navigate("/login");
+      }
+
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
+
   return (
     <div className={`flex h-screen overflow-hidden font-[Montserrat] transition-colors duration-500 ${darkMode ? "bg-[#050816] text-white" : "bg-gray-50 text-gray-900"}`}>
       

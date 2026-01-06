@@ -27,7 +27,7 @@ const Navbar = () => {
                         ${darkMode ? "bg-gray-400" : "bg-indigo-100"}`}>
                         
                         <img
-                            src="../../public/images/navbar-logo.png"
+                            src="/images/navbar-logo.png"
                             alt="Logo"
                             className="w-12 h-12 object-contain"
                         />

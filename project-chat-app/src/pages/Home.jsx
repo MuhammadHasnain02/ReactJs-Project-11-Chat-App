@@ -101,7 +101,7 @@ function Home() {
                         ${darkMode ? "bg-gray-800 shadow-black/30" : "bg-white"}`}>
                         
                         <img 
-                            src='../../public/images/middle-box-logo.png'
+                            src='/images/middle-box-logo.png'
                             alt="Application Logo"
                             className={`w-32 h-32 md:w-48 md:h-48 object-contain rounded-full p-3.5 
                                 ${darkMode ? "bg-gray-700" : "bg-gray-200"}`}

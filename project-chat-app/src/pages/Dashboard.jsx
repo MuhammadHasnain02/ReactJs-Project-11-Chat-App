@@ -73,30 +73,6 @@ const Dashboard = () => {
     return () => supabase.removeChannel(channel)
   } , [])
 
-  // ========== URL Handling ==========
-
-  // useEffect(() => {
-  //   if (window.location.hash) {
-
-  //     supabase.auth.getSession().then(({ data: { session } }) => {
-  //       if (session) {
-  //         window.history.replaceState(null, "", "/dashboard");
-  //       }
-  //     });
-
-  //   }
-
-  //   const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-
-  //     if (event === "SIGNED_OUT" || !session) {
-  //       navigate("/login");
-  //     }
-
-  //   });
-
-  //   return () => subscription.unsubscribe();
-  // }, [navigate]);
-
   return (
     <div className={`flex h-screen overflow-hidden font-[Montserrat] transition-colors duration-500 ${darkMode ? "bg-[#050816] text-white" : "bg-gray-50 text-gray-900"}`}>
       
@@ -208,7 +184,7 @@ const Dashboard = () => {
           <div className="flex-1 overflow-y-auto py-6 mb-50">
             
             {/* Other User Message */}
-            <div className="flex flex-col gap-5">
+            {/* <div className="flex flex-col gap-5">
               
               {allMessages.map((msg) => (
 
@@ -235,6 +211,80 @@ const Dashboard = () => {
 
               ))}
 
+            </div> */}
+
+            {/* CHAT MESSAGES AREA */}
+            <div className="flex-1 overflow-y-auto py-6 px-4 md:px-10 scrollbar-hide">
+              <div className="flex flex-col gap-4">
+                
+                {allMessages.map((msg) => {
+                  const isMe = msg.user_id === user.id;
+
+                  return (
+                    <div key={msg.id} 
+                      className={`flex w-full ${isMe ? 'justify-end' : 'justify-start'}`}
+                    >
+
+                      <div className={`flex gap-2 max-w-[85%] md:max-w-[70%] ${isMe ? 'flex-row-reverse' : 'flex-row'}`}>
+
+                        {/* Avatar */}
+                        <img 
+                          className="w-8 h-8 rounded-full self-end mb-1 shadow-sm"
+                          src={msg.avatar_url || 'https://ui-avatars.com/api/?name=' + (msg.user_name || 'A')}
+                          alt="avatar"
+                        />
+
+                        <div className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
+                          
+                          {/* User Name Tag */}
+                          {!isMe && (
+                            <span className={`text-[10px] font-bold mb-1 ml-2 opacity-60 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                              {msg.user_name || 'user.email'}
+                            </span>
+                          )}
+
+                          {/* Message Bubble with Tail */}
+                          <div className={`
+                            relative px-3.5 py-2 text-[14.5px] shadow-sm transition-all
+                            ${isMe 
+                              ? 'bg-[#dcf8c6] text-gray-800 rounded-2xl rounded-tr-none' // Light Green (WhatsApp style)
+                              : darkMode 
+                                ? 'bg-[#202c33] text-gray-100 rounded-2xl rounded-tl-none' // Dark Glass
+                                : 'bg-white text-gray-800 rounded-2xl rounded-tl-none border border-gray-100'
+                            }
+                            /* CSS Tail Logic */
+                            after:content-[""] after:absolute after:top-0 after:w-0 after:h-0
+                            ${isMe 
+                              ? 'after:-right-2 after:border-l-[10px] after:border-l-[#dcf8c6] after:border-b-[10px] after:border-b-transparent' 
+                              : darkMode 
+                                ? 'after:-left-2 after:border-r-[10px] after:border-r-[#202c33] after:border-b-[10px] after:border-b-transparent'
+                                : 'after:-left-2 after:border-r-[10px] after:border-r-white after:border-b-[10px] after:border-b-transparent'
+                            }
+                          `}>
+                            <div className="flex flex-col gap-1">
+                              <span>{msg.text}</span>
+                              
+                              {/* Time & Status Row */}
+                              <div className="flex items-center justify-end gap-1 -mb-1 select-none">
+                                <span className="text-[10px] opacity-50 font-medium">
+                                  {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}
+                                </span>
+                                {isMe && (
+                                  <i className="fas fa-check-double text-[11px] text-blue-500 ml-1"></i>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+
+                        </div>
+
+                      </div>
+
+                    </div>
+                  );
+                })}
+
+              </div>
             </div>
 
             {/* Your Message */}

@@ -5,11 +5,12 @@ import { signOut } from "../services/authService";
 import { useAuth } from "../hooks/useAuth";
 import { supabase } from "../supabase/config";
 import { useEffect } from "react";
+import { RotatingLines } from "react-loader-spinner";
 
 const Dashboard = () => {
   const { darkMode , setDarkMode } = useContext(ThemeContext);
-  const [message, setMessage] = useState("");
-  const [allMessages, setAllMessages] = useState([]);
+  const [ message, setMessage ] = useState("");
+  const [ allMessages, setAllMessages ] = useState([]);
   const navigate = useNavigate();
 
   const { user, loading } = useAuth();
@@ -33,20 +34,36 @@ const Dashboard = () => {
   const handleSendMsg = async (e) => {
     e.preventDefault();
 
+    // Empty Msg is not Send
+    if (!message.trim()) return;
+
+    const userName = 
+      user.user_metadata?.full_name || 
+      (user.email 
+        ? user.email.split('@')[0].replace(/[0-9]/g , '') 
+        : "Anonymous"
+      );
+
+    const userAvatar = 
+      user.user_metadata?.avatar_url || 
+      `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=random&color=fff`;
+
     const { error } = await supabase
     .from('messages')
     .insert({
       text: message,
       user_id: user.id,
-      user_name: user.user_metadata.full_name,
-      avatar_url: user.user_metadata.avatar_url
+      user_name: userName,
+      avatar_url: userAvatar,
+      user_email: user.email
     })
 
     if (error) {
-      console.log(error);
+      console.error("Error sending message:", error.message);
+    } else {
+      setMessage('');
     }
 
-    setMessage('')
   }
 
   // ========== Real-Time Handling ==========
@@ -74,11 +91,12 @@ const Dashboard = () => {
   } , [])
 
   return (
-    <div className={`flex h-screen overflow-hidden font-[Montserrat] transition-colors duration-500 ${darkMode ? "bg-[#050816] text-white" : "bg-gray-50 text-gray-900"}`}>
+    <div className={`flex h-screen overflow-hidden font-[Montserrat] transition-colors ${darkMode ? "bg-[#050816] text-white" : "bg-gray-50 text-gray-900"}`}>
       
       {/* --- SIDEBAR (Navigation Icons) --- */}
-      <aside className={`w-20 hidden md:flex flex-col items-center justify-between py-8 border-r transition-colors duration-300 ${darkMode ? "bg-white/5 border-white/5" : "bg-white border-gray-200"}`}>
+      <aside className={`w-20 hidden md:flex flex-col items-center justify-between py-8 border-r transition-colors duration-500 ${darkMode ? "bg-white/5 border-white/5" : "bg-white border-gray-200"}`}>
 
+        {/* Top Part */}
         <nav className="flex flex-col items-center gap-8 text-gray-400">
 
           {/* Main Icons */}
@@ -112,6 +130,7 @@ const Dashboard = () => {
 
         </nav>
 
+        {/* Bottom Part */}
         <div className="flex flex-col items-center gap-6 text-gray-400">
 
           {/* Setting Icon */}
@@ -131,12 +150,14 @@ const Dashboard = () => {
       </aside>
 
       {/* --- MAIN CHAT ROOM --- */}
-      <main className={`grow flex flex-col transition-colors duration-300 ${darkMode ? "bg-[#050816]" : "bg-white"}`}>
+      <main className={`grow flex flex-col transition-colors duration-400 ${darkMode ? "bg-[#050816]" : "bg-white"}`}>
         
         {/* Header - Global Room Info */}
         <header className={`p-6 flex justify-between items-center border-b ${darkMode ? "border-white/5 bg-white/2" : "border-gray-200 bg-white"}`}>
           
+          {/* Group OR Room Name -> Left */}
           <div className="flex items-center gap-4">
+            
             <div className="w-12 h-12 rounded-full bg-linear-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-white shadow-inner">
                <i className="fas fa-users"></i>
             </div>
@@ -147,28 +168,74 @@ const Dashboard = () => {
                 <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest">142 Users Online</p>
               </div>
             </div>
+
           </div>
           
-          <div className="flex gap-4">
-
-            {/* Notification Icon */}
-            <button className={`p-3 rounded-xl transition cursor-pointer ${darkMode ? "bg-white/5 hover:bg-white/10" : "bg-gray-100 hover:bg-gray-200"}`}>
-              <i className="fas fa-bell"></i>
-            </button>
-            {/* Search Icon */}
-            <button className={`p-3 rounded-xl transition cursor-pointer ${darkMode ? "bg-white/5 hover:bg-white/10" : "bg-gray-100 hover:bg-gray-200"}`}>
-              <i className="fas fa-search"></i>
-            </button>
-            {/* Dark & Light Theme Icon */}
+          {/* Icons OR Navlinks -> Right */}
+          <div className="flex items-center gap-4">
+              
+            {/* Dark & Light Theme Toggle */}
             <button onClick={() => setDarkMode(!darkMode)}
-              className={`p-3 rounded-xl transition cursor-pointer text-lg ${darkMode ? "bg-white/5 hover:bg-white/10" : "bg-gray-100 hover:bg-gray-200"}`}>
-              <i className={`fa-regular fa-${darkMode ? "sun" : "moon"}`}></i>
+              className={`w-10 h-10 md:w-11 md:h-11 flex items-center justify-center text-lg text-indigo-500 rounded-xl  cursor-pointer shadow-sm
+                ${darkMode ? "bg-white/8" : "bg-indigo-100"}`}
+            >
+              <i className={`fa-regular fa-${darkMode ? "sun" : "moon"} transition-all duration-300 -rotate-10 hover:-rotate-20`}></i>
             </button>
+
+            {/* Profile Icon */}
+            <div className={`flex items-center gap-3 cursor-pointer border-x px-3 md:px-6 ${darkMode ? 'border-gray-800' : 'border-gray-200'}`}>
+
+              {/* Outer Glow Container */}
+              <div className="relative">
+                <div className={`p-0.5 rounded-full bg-linear-to-tr from-indigo-500 via-purple-500 to-pink-500 shadow-md transition-transform duration-300`}>
+
+                  <div className={`rounded-full p-0.5 ${darkMode ? 'bg-gray-900' : 'bg-white'}`}>
+                    <img 
+                      className="w-9 h-9 md:w-10 md:h-10 rounded-full object-cover border-2 border-transparent"
+                      src={
+                        user?.user_metadata?.avatar_url || 
+                        `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                          user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'U'
+                        )}&background=random&color=fff&bold=true`
+                      }
+                      alt="profile"
+                    />
+                  </div>
+                  
+                  {/* Online Status Indicator */}
+                  <span className="absolute bottom-0 right-0 block h-3 w-3 rounded-full bg-green-500 ring-2 ring-white dark:ring-gray-900"></span>
+                  
+                </div>
+              </div>
+
+              {/* User Info (Desktop only) */}
+              <div className="hidden md:flex flex-col ">
+                
+                <span className="text-[13px] font-bold leading-tight max-w-28 truncate">
+                  {user?.user_metadata?.full_name || user?.email?.split('@')[0].replace(/[0-9]/g, '') || "User"}
+                </span>
+                <span className="text-[12px] font-medium leading-tight max-w-28 truncate">
+                  { user?.user_metadata?.email }
+                </span>
+                
+              </div>
+
+            </div>
+
             {/* SignOut Icon */}
             <button onClick={handleSignOut} title="Sign out" 
-              className={`p-3 rounded-xl transition cursor-pointer ${darkMode ? "bg-red-950" : "bg-red-100"}`}>
-              <i className="fas fa-right-from-bracket text-lg text-red-500 duration-500 hover:-rotate-90"></i>
+              className={`p-3 rounded-xl transition-all cursor-pointer group ${darkMode ? "bg-red-950" : "bg-red-100"}`}>
+              <i className="fas fa-right-from-bracket text-lg text-red-500 transition-transform duration-500 group-hover:translate-x-1"></i>
             </button>
+
+            {/* Notification Icon */}
+            {/* <button className={`p-3 rounded-xl transition cursor-pointer ${darkMode ? "bg-white/5 hover:bg-white/10" : "bg-gray-100 hover:bg-gray-200"}`}>
+              <i className="fas fa-bell"></i>
+            </button> */}
+            {/* Search Icon */}
+            {/* <button className={`p-3 rounded-xl transition cursor-pointer ${darkMode ? "bg-white/5 hover:bg-white/10" : "bg-gray-100 hover:bg-gray-200"}`}>
+              <i className="fas fa-search"></i>
+            </button> */}
             {/* <button className={`p-3 rounded-xl transition cursor-pointer ${darkMode ? "bg-white/5 hover:bg-white/10" : "bg-gray-100 hover:bg-gray-200"}`}>
               <i className="fa-solid fa-ellipsis-vertical"></i>
             </button> */}
@@ -180,129 +247,124 @@ const Dashboard = () => {
         {/* Chat & Input Section */}
         <div className="grow flex flex-col relative h-full">
 
-          {/* CHAT MESSAGES AREA */}
-          <div className="flex-1 overflow-y-auto py-6 mb-50">
-            
-            {/* Other User Message */}
-            {/* <div className="flex flex-col gap-5">
+          {loading ? (
+
+            <div className="flex grow flex-col items-center justify-center">
+              <RotatingLines
+                visible={true}
+                height="70"
+                width="70"
+                color="#4F39F6"
+                strokeWidth="5"
+                animationDuration="1"
+                ariaLabel="rotating-lines-loading"
+              />
+            </div>
+
+          ) : (
+
+            // {/* CHAT MESSAGES AREA */}
+            <div className="flex-1 overflow-y-auto py-6 mb-50">
               
-              {allMessages.map((msg) => (
+              {/* CHAT MESSAGES AREA */}
+              <div className="flex-1 overflow-y-auto py-6 px-4 md:px-10 scrollbar-hide">
+                <div className="flex flex-col gap-4">
+                  
+                  {allMessages.map((msg) => {
+                    const isMe = msg.user_id === user.id;
 
-                <div key={msg.id} className={`flex gap-3 ${msg.user_id !== user.id ? 'justify-start px-10' : 'justify-end px-20'}`}>
+                    return (
+                      <div key={msg.id} 
+                        className={`flex w-full ${isMe ? 'justify-end' : 'justify-start'}`}
+                      >
 
-                  <img className="w-8 h-8 rounded-full mb-1"
-                    src={msg.avatar_url || 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Unknown_person.jpg/500px-Unknown_person.jpg'}
-                  />
-                  <div className="flex flex-col">
+                        <div className={`flex gap-2 max-w-[85%] md:max-w-[70%] ${isMe ? 'flex-row-reverse' : 'flex-row'}`}>
 
-                    <span className="text-[10px] font-bold ml-1 mb-1 opacity-50">
-                      {msg.user_name || "Anonymous"}
-                    </span>
-                    <div className={`p-3 rounded-2xl rounded-bl-none text-sm ${
-                        darkMode ? "bg-white/5" : "bg-gray-100"
-                      }`}
-                    >
-                      {msg.text}
-                    </div>
-                    
-                  </div>
+                          {/* Avatar */}
+                          <img className="w-8 h-8 rounded-full self-center shadow-sm"
+                            src={ msg.avatar_url }
+                            alt="avatar"
+                          />
 
-                </div>
+                          <div className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
+                            
+                            {/* User Name Tag */}
+                            {!isMe && (
+                              <span className={`text-[11px] font-bold mb-1 ml-2 opacity-80 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                                { msg.user_name }
+                              </span>
+                            )}
 
-              ))}
-
-            </div> */}
-
-            {/* CHAT MESSAGES AREA */}
-            <div className="flex-1 overflow-y-auto py-6 px-4 md:px-10 scrollbar-hide">
-              <div className="flex flex-col gap-4">
-                
-                {allMessages.map((msg) => {
-                  const isMe = msg.user_id === user.id;
-
-                  return (
-                    <div key={msg.id} 
-                      className={`flex w-full ${isMe ? 'justify-end' : 'justify-start'}`}
-                    >
-
-                      <div className={`flex gap-2 max-w-[85%] md:max-w-[70%] ${isMe ? 'flex-row-reverse' : 'flex-row'}`}>
-
-                        {/* Avatar */}
-                        <img 
-                          className="w-8 h-8 rounded-full self-end mb-1 shadow-sm"
-                          src={msg.avatar_url || 'https://ui-avatars.com/api/?name=' + (msg.user_name || 'A')}
-                          alt="avatar"
-                        />
-
-                        <div className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
-                          
-                          {/* User Name Tag */}
-                          {!isMe && (
-                            <span className={`text-[10px] font-bold mb-1 ml-2 opacity-60 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                              {msg.user_name || 'user.email'}
-                            </span>
-                          )}
-
-                          {/* Message Bubble with Tail */}
-                          <div className={`
-                            relative px-3.5 py-2 text-[14.5px] shadow-sm transition-all
-                            ${isMe 
-                              ? 'bg-[#dcf8c6] text-gray-800 rounded-2xl rounded-tr-none' // Light Green (WhatsApp style)
-                              : darkMode 
-                                ? 'bg-[#202c33] text-gray-100 rounded-2xl rounded-tl-none' // Dark Glass
-                                : 'bg-white text-gray-800 rounded-2xl rounded-tl-none border border-gray-100'
-                            }
-                            /* CSS Tail Logic */
-                            after:content-[""] after:absolute after:top-0 after:w-0 after:h-0
-                            ${isMe 
-                              ? 'after:-right-2 after:border-l-[10px] after:border-l-[#dcf8c6] after:border-b-[10px] after:border-b-transparent' 
-                              : darkMode 
-                                ? 'after:-left-2 after:border-r-[10px] after:border-r-[#202c33] after:border-b-[10px] after:border-b-transparent'
-                                : 'after:-left-2 after:border-r-[10px] after:border-r-white after:border-b-[10px] after:border-b-transparent'
-                            }
-                          `}>
-                            <div className="flex flex-col gap-1">
-                              <span>{msg.text}</span>
+                            {/* Message Bubble with Tail */}
+                            <div className={`relative px-5 py-2 text-[14px] shadow-sm transition-all
+                              ${isMe 
+                                ? `${darkMode ? 'bg-[#144D37] text-gray-200' : 'bg-[#dcf8c6] text-gray-800'} rounded-2xl rounded-tr-none` // Light Green (WhatsApp style)
+                                : darkMode 
+                                  ? 'bg-[#202c33] text-gray-100 rounded-2xl rounded-tl-none' // Dark Glass
+                                  : 'bg-gray-100 text-gray-800 rounded-2xl rounded-tl-none border border-gray-100'
+                              }
+                              after:content-[""] after:absolute after:top-0 after:w-0 after:h-0
+                              ${isMe 
+                                ? `after:-right-2 after:border-l-10 ${darkMode ? 'after:border-l-[#144D37]' : 'after:border-l-[#dcf8c6]'} after:border-b-10 after:border-b-transparent` 
+                                : darkMode 
+                                  ? 'after:-left-2 after:border-r-10 after:border-r-[#202c33] after:border-b-10 after:border-b-transparent'
+                                  : 'after:-left-2 after:border-r-10 after:border-r-gray-100 after:border-b-10 after:border-b-transparent'
+                              }
+                            `}>
                               
-                              {/* Time & Status Row */}
-                              <div className="flex items-center justify-end gap-1 -mb-1 select-none">
-                                <span className="text-[10px] opacity-50 font-medium">
-                                  {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}
-                                </span>
+                              <div className="flex flex-col gap-1">
+
+                                <span className="text-[14px] font-medium">{msg.text}</span>
+
+                                {/* Edit/Delete Buttons (Sirf aapke messages par nazar ayenge jab hover karenge) */}
                                 {isMe && (
-                                  <i className="fas fa-check-double text-[11px] text-blue-500 ml-1"></i>
+                                  <div className="absolute -left-12 top-0 flex gap-2 opacity-0 group-hover/msg:opacity-100 transition-opacity">
+                                    <button onClick={() => handleEdit(msg.id, msg.text)} className="text-gray-400 hover:text-blue-500 transition">
+                                      <i className="fa-regular fa-pen-to-square text-xs"></i>
+                                    </button>
+                                    <button onClick={() => handleDelete(msg.id)} className="text-gray-400 hover:text-red-500 transition">
+                                      <i className="fa-solid fa-trash text-xs"></i>
+                                    </button>
+                                  </div>
                                 )}
+                                
+                                {/* Time & Status Row */}
+                                <div className="flex items-center justify-end gap-1 -mb-1 select-none">
+                                  
+                                  <span className="text-[11px] opacity-60 font-medium">
+                                    {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}
+                                  </span>
+                                  {isMe && (
+                                    <i className="fas fa-check-double text-[12px] text-blue-500 ml-1"></i>
+                                  )}
+                                  
+                                </div>
+
                               </div>
+
                             </div>
+
                           </div>
 
                         </div>
 
                       </div>
+                    );
+                  })}
 
-                    </div>
-                  );
-                })}
-
+                </div>
               </div>
+
+              {/* Announcement / System Message */}
+              <div className="flex justify-center my-4">
+                <span className={`px-4 py-1 rounded-full text-[10px] font-black tracking-widest uppercase border ${darkMode ? "bg-white/5 border-white/5 text-gray-500" : "bg-gray-50 border-gray-200 text-gray-400"}`}>
+                  Hasnain Dev joined Yesterday
+                </span>
+              </div>
+
             </div>
 
-            {/* Your Message */}
-            {/* <div className="flex flex-col items-end gap-1">
-              <span className="text-[10px] font-bold mr-1 opacity-50 text-indigo-500">You</span>
-              <div className="max-w-[80%] p-4 rounded-2xl rounded-br-none text-sm bg-indigo-600 text-white shadow-lg shadow-indigo-600/20">
-                Walaikum Assalam Ali! Everything is working great with the new Supabase integration.
-              </div>
-            </div> */}
-
-            {/* Announcement / System Message */}
-            {/* <div className="flex justify-center my-4">
-              <span className={`px-4 py-1 rounded-full text-[10px] font-black tracking-widest uppercase border ${darkMode ? "bg-white/5 border-white/5 text-gray-500" : "bg-gray-50 border-gray-200 text-gray-400"}`}>
-                  Hasnain Dev joined the room
-              </span>
-            </div> */}
-
-          </div>
+          )}
 
           {/* Input Footer */}
           <form onSubmit={handleSendMsg} className={`fixed bottom-0 w-full flex flex-col justify-center items-center py-5 bg-white border-t ${darkMode ? "border-white/5 bg-white/1" : "border-gray-200 bg-gray-50/30"}`}>

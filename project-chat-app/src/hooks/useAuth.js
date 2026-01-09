@@ -12,10 +12,6 @@ export function useAuth() {
         supabase.auth.getSession().then(({ data }) => {
             setUser(data.session?.user ?? null);
             setLoading(false);
-
-            if (!user) {
-                navigate("/login");
-            }
         });
 
         // listener
